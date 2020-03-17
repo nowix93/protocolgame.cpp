@@ -1,0 +1,94 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayerController : MonoBehaviour
+{
+
+    public float moveSpeed;
+
+    private Animator anim;
+
+    private bool playerMoving;
+
+    private Vector2 lastMove;
+
+    private bool RotationP = false;
+    private int RotationDir = 0;
+  
+
+    private Rigidbody2D MyRigidbody;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        anim = GetComponent<Animator>();
+        MyRigidbody = GetComponent<Rigidbody2D>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        playerMoving = false;
+
+
+        if (Input.GetKey(KeyCode.LeftControl) && !RotationP)
+        {
+            RotationP = true;
+            anim.SetBool("Rotation", RotationP);
+            MyRigidbody.velocity = Vector2.zero;
+            /*
+                1 = east
+                2 = south
+                3 = west
+               4 = north    
+           */
+
+            if (Input.GetKeyDown(KeyCode.D))
+            {
+                RotationDir = 1;
+            }
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                RotationDir = -1;
+            }
+            if (Input.GetKeyDown(KeyCode.A))
+            {
+                RotationDir = -1;
+            }
+            if (Input.GetKeyDown(KeyCode.W))
+            {
+                RotationDir = 1;
+            }
+            anim.SetFloat("RotationY", RotationDir);
+        }
+
+        if (!RotationP)
+        {
+            if (Input.GetAxisRaw("Horizontal") > 0.5f || Input.GetAxisRaw("Horizontal") < -0.1f)
+            {
+                transform.Translate(new Vector3(Input.GetAxisRaw("Horizontal") * moveSpeed * Time.deltaTime, 0f, 0f));
+                playerMoving = true;
+                lastMove = new Vector2(Input.GetAxisRaw("Horizontal"), 0f);
+            }
+            if (Input.GetAxisRaw("Vertical") > 0.5f || Input.GetAxisRaw("Vertical") < -0.1f)
+            {
+                transform.Translate(new Vector3(0f, Input.GetAxisRaw("Vertical") * moveSpeed * Time.deltaTime, 0f));
+                playerMoving = true;
+                lastMove = new Vector2(0f, Input.GetAxisRaw("Vertical"));
+            }
+        }
+        if(Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            RotationP = false;
+            anim.SetBool("Rotation", RotationP);
+        }
+
+
+        anim.SetFloat("MoveX", Input.GetAxis("Horizontal"));
+        anim.SetFloat("MoveY", Input.GetAxis("Vertical"));
+        anim.SetBool("PlayerMoving", playerMoving);
+        anim.SetFloat("LastMoveX", lastMove.x);
+        anim.SetFloat("LastMoveY", lastMove.y);
+    }
+}
